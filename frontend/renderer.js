@@ -205,22 +205,17 @@
   }
 
   function formatMessage(text, mediaUrl) {
-    // Handle media first
+    // FIXED: NO media display in reading panel - just provide download link
     if (mediaUrl && (text.includes('Image Generated') || text.includes('🎨'))) {
-      const imgHtml = `<div class="media-container">
-        <img src="${mediaUrl}" alt="Generated image" class="generated-media" />
-      </div>`;
-      text = text.replace(/!\[Generated Image\]\([^)]+\)/g, imgHtml);
+      // Remove any image markdown
+      text = text.replace(/!\[Generated Image\]\([^)]+\)/g, '');
+      // Add download link instead of showing image
+      text += `\n\n<a href="${mediaUrl}" target="_blank" class="media-download-link">🔗 Download Generated Image</a>`;
     }
 
     if (mediaUrl && (text.includes('Video Generated') || text.includes('🎬'))) {
-      const videoHtml = `<div class="media-container">
-        <video controls class="generated-media">
-          <source src="${mediaUrl}" type="video/mp4">
-          Your browser doesn't support video.
-        </video>
-      </div>`;
-      text += `<br>${videoHtml}`;
+      // Add download link instead of showing video
+      text += `\n\n<a href="${mediaUrl}" target="_blank" class="media-download-link">🔗 Download Generated Video</a>`;
     }
 
     // Apply markdown formatting

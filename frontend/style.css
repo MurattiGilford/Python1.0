@@ -531,15 +531,16 @@ html, body {
   box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
 }
 
+/* ===== INPUT ROW - Claude Style (Horizontal) ===== */
 .input-row {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: flex-end;
 }
 
 .attach-btn {
   position: relative;
-  align-self: flex-end;
+  flex-shrink: 0;
 }
 
 .message-input {
@@ -552,38 +553,47 @@ html, body {
   color: var(--text-primary);
   resize: none;
   max-height: 200px;
-  padding: 8px;
+  padding: 8px 4px;
   line-height: 1.5;
+  min-height: 24px;
 }
 
 .message-input::placeholder {
   color: var(--text-tertiary);
 }
 
-.model-selector {
+/* ===== MODEL SELECTOR ROW - Below Textarea (Claude Style) ===== */
+.model-selector-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 200px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px 0 4px;
+  border-top: 1px solid var(--border-light);
+  margin-top: 8px;
 }
 
-.model-selector label {
+.model-selector-row label {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
+.model-select,
 #provider-select {
-  padding: 8px 12px;
+  flex: 1;
+  max-width: 300px;
+  padding: 6px 10px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-primary);
   outline: none;
   transition: all 0.2s;
 }
 
+.model-select:focus,
 #provider-select:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
@@ -920,38 +930,58 @@ video.generated-media {
   border-radius: 0;
 }
 
+/* ===== MEDIA DOWNLOAD LINK (Instead of Showing Images) ===== */
+.media-download-link {
+  display: inline-block;
+  margin: 8px 0;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.media-download-link:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .chat-container {
     padding: 0 16px;
   }
-  
+
   .header {
     padding: 12px 16px;
   }
-  
+
   .brand-subtitle {
     display: none;
   }
-  
+
   .welcome-title {
     font-size: 24px;
   }
-  
+
   .capabilities {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  .input-row {
+
+  .model-selector-row {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
-  
-  .model-selector {
-    min-width: auto;
-  }
-  
-  .send-btn {
-    align-self: flex-end;
+
+  .model-select,
+  #provider-select {
+    max-width: 100%;
+    width: 100%;
   }
 }

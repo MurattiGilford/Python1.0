@@ -107,38 +107,40 @@
             </div>
           </div>
 
-          <!-- Input Area -->
+          <!-- Input Area - Claude Style -->
           <div class="input-container">
             <div class="input-wrapper">
-              <button class="icon-btn attach-btn" id="attachBtn" title="Attach file">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8 2a2.5 2.5 0 00-2.5 2.5v11a4.5 4.5 0 009 0v-9a.5.5 0 011 0v9a5.5 5.5 0 01-11 0v-11a3.5 3.5 0 117 0v9a2.5 2.5 0 01-5 0v-9a.5.5 0 011 0v9a1.5 1.5 0 003 0v-9A2.5 2.5 0 008 2z"/>
-                </svg>
-                <input type="file" id="fileInput" hidden accept=".pdf,.docx,.pptx,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.gif,.mp4,.mov">
-              </button>
-              
+              <!-- Top Row: Attach + Textarea + Send -->
               <div class="input-row">
-                <textarea 
-                  id="messageInput" 
-                  class="message-input" 
+                <button class="icon-btn attach-btn" id="attachBtn" title="Attach file">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 2a2.5 2.5 0 00-2.5 2.5v11a4.5 4.5 0 009 0v-9a.5.5 0 011 0v9a5.5 5.5 0 01-11 0v-11a3.5 3.5 0 117 0v9a2.5 2.5 0 01-5 0v-9a.5.5 0 011 0v9a1.5 1.5 0 003 0v-9A2.5 2.5 0 008 2z"/>
+                  </svg>
+                  <input type="file" id="fileInput" hidden accept=".pdf,.docx,.pptx,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.gif,.mp4,.mov">
+                </button>
+
+                <textarea
+                  id="messageInput"
+                  class="message-input"
                   placeholder="Ask anything... Generate images, videos, analyze files..."
                   rows="1"
                 ></textarea>
-                
-                <div class="model-selector">
-                  <label for="provider-select">Model:</label>
-                  <select id="provider-select">
-                    <option value="">Auto (Free Tier)</option>
-                    <!-- Provider options will be populated dynamically -->
-                  </select>
-                </div>
+
+                <button class="send-btn" id="sendBtn" title="Send message">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 10l16-8-8 16-2-6-6-2z"/>
+                  </svg>
+                </button>
               </div>
-              
-              <button class="send-btn" id="sendBtn" title="Send message">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2 10l16-8-8 16-2-6-6-2z"/>
-                </svg>
-              </button>
+
+              <!-- Bottom Row: Model Selector (Claude Style) -->
+              <div class="model-selector-row">
+                <label for="provider-select">Model:</label>
+                <select id="provider-select" class="model-select">
+                  <option value="">Auto (Free Tier)</option>
+                  <!-- Provider options will be populated dynamically -->
+                </select>
+              </div>
             </div>
             <div class="input-hint">
               <span>Shift + Enter for new line</span>

@@ -9,12 +9,11 @@
   const sendBtn = document.getElementById('sendBtn');
   const attachBtn = document.getElementById('attachBtn');
   const fileInput = document.getElementById('fileInput');
-  const modelHint = document.getElementById('modelHint');
-  const providerSelect = document.getElementById('provider-select');
+  const modelHintLabel = document.getElementById('modelHintLabel');
+  const currentModelLabel = document.getElementById('currentModelLabel');
   const chatHistoryList = document.getElementById('chatHistoryList');
-  const chatHistorySidebar = document.getElementById('chatHistorySidebar');
-  const chatHistoryToggle = document.getElementById('chatHistoryToggle');
-  const currentModel = document.getElementById('currentModel');
+  const costValue = document.getElementById('costValue');
+  const statusText = document.getElementById('statusText');
 
   let totalCost = 0;
   let isProcessing = false;
@@ -97,29 +96,18 @@
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${messageObj.role}`;
 
+    // Role label
+    const roleDiv = document.createElement('div');
+    roleDiv.className = 'message-role';
+    roleDiv.textContent = messageObj.role === 'user' ? 'You' : 'Claude';
+
+    // Content
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
 
-    // Avatar
-    const avatar = document.createElement('div');
-    avatar.className = `avatar ${messageObj.role}-avatar`;
-    if (messageObj.role === 'user') {
-      avatar.textContent = 'You';
-    } else {
-      avatar.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <rect width="20" height="20" rx="4" fill="#CC9167"/>
-        </svg>
-      `;
-    }
-
-    // Bubble
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
-
     // Format content with markdown and media
     const formattedContent = formatMessage(messageObj.content, messageObj.metadata?.media_url);
-    bubble.innerHTML = formattedContent;
+    contentDiv.innerHTML = formattedContent;
 
     // Metadata
     if (messageObj.metadata?.model || messageObj.metadata?.time || messageObj.metadata?.cost !== undefined) {
@@ -156,17 +144,11 @@
       }
 
       meta.textContent = parts.join(' • ');
-      bubble.appendChild(meta);
+      contentDiv.appendChild(meta);
     }
 
-    contentDiv.appendChild(avatar);
-    contentDiv.appendChild(bubble);
+    messageDiv.appendChild(roleDiv);
     messageDiv.appendChild(contentDiv);
-
-    // Apply syntax highlighting to code blocks
-    if (window.Prism) {
-      Prism.highlightAllUnder(messageDiv);
-    }
 
     return messageDiv;
   }
@@ -224,7 +206,7 @@
   function showLoading(message = 'Thinking...') {
     const template = document.getElementById('loadingTemplate');
     const loadingEl = template.content.cloneNode(true);
-    const bubble = loadingEl.querySelector('.message-bubble');
+    const messageContent = loadingEl.querySelector('.message-content');
 
     const indicator = document.createElement('div');
     indicator.className = 'typing-indicator';
@@ -233,11 +215,12 @@
     const text = document.createElement('div');
     text.style.fontStyle = 'italic';
     text.style.marginTop = '8px';
+    text.style.fontSize = '12px';
     text.textContent = message;
 
-    bubble.innerHTML = '';
-    bubble.appendChild(indicator);
-    bubble.appendChild(text);
+    messageContent.innerHTML = '';
+    messageContent.appendChild(indicator);
+    messageContent.appendChild(text);
 
     messagesEl.appendChild(loadingEl);
     scrollToBottom();
@@ -289,16 +272,12 @@
       const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
       item.innerHTML = `
-        <div class="chat-item-content">
+        <div class="chat-dot"></div>
+        <div style="flex: 1;">
           <div class="chat-title">${sanitize(session.preview)}</div>
-          <div class="chat-date">${dateStr} • ${session.message_count} msgs</div>
+          <div class="chat-date">${dateStr}</div>
         </div>
-        <button class="delete-chat-btn" onclick="window.deleteChat('${session.session_id}')" title="Delete chat">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 1 1 0V6z"/>
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1 1v1H4.5a1 1 0 0 1-1 1v1.438l.438.438A.5.5 0 0 1 5 6.5v7a.5.5 0 0 1 .5.5h5a.5.5 0 0 1 .5-.5v-7A.5.5 0 0 1 .062-.25l.438-.438V3.5z"/>
-          </svg>
-        </button>
+        <button class="delete-chat-btn" onclick="window.deleteChat('${session.session_id}')" title="Delete chat">✕</button>
       `;
 
       item.onclick = (e) => {
@@ -439,33 +418,10 @@
       const providers = await response.json();
       availableProviders = providers;
 
-      // Update provider select dropdown
-      providerSelect.innerHTML = '<option value="">Claude Sonnet</option>';
-
-      for (const [key, provider] of Object.entries(providers)) {
-        const option = document.createElement('option');
-        option.value = key;
-
-        const costText = provider.cost_per_1k > 0
-          ? `$${provider.cost_per_1k}/1K tokens`
-          : 'FREE';
-
-        option.textContent = `${provider.model} (${provider.type}) - ${costText}`;
-        providerSelect.appendChild(option);
-      }
+      console.log('✅ Loaded providers:', Object.keys(providers));
 
     } catch (error) {
       console.error('Error fetching providers:', error);
-    }
-  }
-
-  function updateProviderHint() {
-    const selectedProvider = providerSelect.value;
-    if (selectedProvider && availableProviders[selectedProvider]) {
-      const provider = availableProviders[selectedProvider];
-      if (modelHint) modelHint.textContent = `${provider.model}`;
-    } else {
-      if (modelHint) modelHint.textContent = '';
     }
   }
 
@@ -514,8 +470,6 @@
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const selectedProvider = providerSelect.value;
-
       // FIXED: Include session_id in request
       const response = await fetch(`${BACKEND}/chat`, {
         method: 'POST',
@@ -554,10 +508,11 @@
       });
 
       totalCost += data.cost_cents;
+      if (costValue) costValue.textContent = formatCost(totalCost);
 
       if (data.model_used && availableProviders[data.model_used]) {
         const provider = availableProviders[data.model_used];
-        if (modelHint) modelHint.textContent = `${provider.model}`;
+        if (currentModelLabel) currentModelLabel.textContent = provider.model;
       }
 
       // Reload sessions after new message
@@ -600,8 +555,6 @@
       if (data.ok) {
         // FIXED: Backend now returns minimal info, no instruction field
         // Send a request to analyze the file
-        const selectedProvider = providerSelect.value;
-
         isProcessing = true;
         sendBtn.disabled = true;
 
@@ -642,10 +595,11 @@
         });
 
         totalCost += chatData.cost_cents;
+        if (costValue) costValue.textContent = formatCost(totalCost);
 
         if (chatData.model_used && availableProviders[chatData.model_used]) {
           const provider = availableProviders[chatData.model_used];
-          if (modelHint) modelHint.textContent = `${provider.model}`;
+          if (currentModelLabel) currentModelLabel.textContent = provider.model;
         }
 
         // Reload chat sessions
@@ -667,38 +621,7 @@
     }
   }
 
-  // ===== EVENT LISTENERS =====
-
-  sendBtn.addEventListener('click', sendMessage);
-
-  messageInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-
-  messageInput.addEventListener('input', autoResize);
-
-  attachBtn.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-    e.target.value = '';
-  });
-
-  providerSelect.addEventListener('change', updateProviderHint);
-
-  chatHistoryToggle.addEventListener('click', toggleChatHistory);
-
   // ===== GLOBAL FUNCTIONS =====
-
-  window.toggleChatHistory = toggleChatHistory;
 
   window.quickCommand = (command) => {
     messageInput.value = command;
@@ -770,20 +693,26 @@
 
       if (data.status === 'online') {
         console.log('✅ Backend connected:', data.version);
+        if (statusText) statusText.textContent = 'Connected';
       }
 
       const costResponse = await fetch(`${BACKEND}/cost`);
       const costData = await costResponse.json();
       totalCost = costData.total_cost_cents;
+      if (costValue) costValue.textContent = formatCost(totalCost);
 
       // Fetch available providers
       await fetchProviders();
+
+      // Update model pills after providers are loaded
+      updateModelPills();
 
       // Load chat sessions
       await loadChatSessions();
 
     } catch (error) {
       console.error('Failed to connect to backend:', error);
+      if (statusText) statusText.textContent = 'Disconnected';
     }
 
     messageInput.focus();
@@ -791,6 +720,83 @@
 
   init();
   autoResize();
+
+  console.log('✨ Claude initialized');
+  console.log('📍 Current session:', currentSessionId);
+
+  // ===== MODEL PILL SELECTOR =====
+  let selectedProvider = '';
+
+  function updateModelPills() {
+    const modelPills = document.getElementById('modelPills');
+    if (!modelPills) return;
+
+    // Start with default Claude Sonnet
+    let pillsHTML = `
+      <div class="model-pill ${selectedProvider === '' ? 'active' : ''}" data-model="Claude Sonnet" data-value="" data-hint="Balanced performance and intelligence">
+        <span class="dot"></span>
+        <span>Claude Sonnet</span>
+      </div>
+    `;
+
+    // Add available providers
+    for (const [key, provider] of Object.entries(availableProviders)) {
+      const isActive = selectedProvider === key ? 'active' : '';
+      const hint = `${provider.model} - ${provider.type}`;
+      pillsHTML += `
+        <div class="model-pill ${isActive}" data-model="${provider.model}" data-value="${key}" data-hint="${hint}">
+          <span class="dot"></span>
+          <span>${provider.model}</span>
+        </div>
+      `;
+    }
+
+    modelPills.innerHTML = pillsHTML;
+
+    // Attach click handlers
+    modelPills.querySelectorAll('.model-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        selectedProvider = pill.getAttribute('data-value');
+        const modelName = pill.getAttribute('data-model');
+        const modelHint = pill.getAttribute('data-hint');
+
+        // Update UI
+        if (currentModelLabel) currentModelLabel.textContent = modelName;
+        if (modelHintLabel) modelHintLabel.textContent = modelHint;
+
+        // Update active state
+        modelPills.querySelectorAll('.model-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+  }
+
+  // Handle Enter key to send
+  messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Auto-resize textarea
+  messageInput.addEventListener('input', autoResize);
+
+  // Attach file button
+  attachBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+    e.target.value = '';
+  });
+
+  // Send button
+  sendBtn.addEventListener('click', sendMessage);
 
   // Drag & drop support
   document.addEventListener('dragover', (e) => e.preventDefault());
@@ -800,7 +806,4 @@
       handleFileUpload(e.dataTransfer.files[0]);
     }
   });
-
-  console.log('✨ Claude initialized');
-  console.log('📍 Current session:', currentSessionId);
 })();

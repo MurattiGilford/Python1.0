@@ -1,124 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Claude</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 <body>
-  <div id="app">
-    <!-- Left Sidebar - Chat History (Collapsible) -->
-    <aside class="chat-history-sidebar" id="chatHistorySidebar">
-      <div class="sidebar-header">
-        <h3>Chat History</h3>
-        <button class="icon-btn" onclick="window.toggleChatHistory()" title="Toggle Chat History">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
-            <path d="M3 12h12M3 6h12M3 9h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <div class="sidebar-title-pill"></div>
+        <span>Claude</span>
       </div>
-      <div class="chat-history-list" id="chatHistoryList">
-        <!-- Chat history items will be populated here -->
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <div class="main-wrapper">
-      <!-- Header -->
-      <header class="header">
-        <div class="header-left">
-          <button class="icon-btn" id="chatHistoryToggle" title="Toggle Chat History">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M3 12h14M3 6h14M3 9h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <div class="logo">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-              <rect width="28" height="28" rx="6" fill="#CC9167"/>
-              <path d="M7 14h14M7 9h14M7 19h14" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="brand-info">
-            <h1 class="brand-name">Claude</h1>
-          </div>
-        </div>
-        
-        <div class="header-right">
-          <div class="model-badge" id="modelBadge">
-            <span id="currentModel">Claude Sonnet</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Chat Area -->
-      <main class="main">
-        <div class="chat-container">
-          <div id="messages" class="messages">
-            <!-- Welcome message -->
-            <div class="welcome-section">
-              <h2 class="welcome-title">How can I help you today?</h2>
-            </div>
-          </div>
-
-          <!-- Input Area - Claude Style -->
-          <div class="input-container">
-            <div class="input-wrapper">
-              <!-- Top Row: Attach + Textarea + Send -->
-              <div class="input-row">
-                <button class="icon-btn attach-btn" id="attachBtn" title="Attach file">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M8 2a2.5 2.5 0 00-2.5 2.5v11a4.5 4.5 0 009 0v-9a.5.5 0 011 0v9a5.5 5.5 0 01-11 0v-11a3.5 3.5 0 117 0v9a2.5 2.5 0 01-5 0v-9a.5.5 0 011 0v9a1.5 1.5 0 003 0v-9A2.5 2.5 0 008 2z"/>
-                  </svg>
-                  <input type="file" id="fileInput" hidden accept=".pdf,.docx,.pptx,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.gif,.mp4,.mov">
-                </button>
-
-                <textarea
-                  id="messageInput"
-                  class="message-input"
-                  placeholder="Reply to Claude..."
-                  rows="1"
-                ></textarea>
-
-                <button class="send-btn" id="sendBtn" title="Send message">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 10l16-8-8 16-2-6-6-2z"/>
-                  </svg>
-                </button>
-              </div>
-
-            </div>
-            <div class="input-footer">
-              <select id="provider-select" class="model-select">
-                <option value="">Claude Sonnet</option>
-                <!-- Provider options will be populated dynamically -->
-              </select>
-              <div class="input-hint">
-                <span id="modelHint"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+      <span class="badge-version">AI</span>
     </div>
-  </div>
+
+    <button class="new-chat-btn" type="button" onclick="window.clearChat()">
+      <span class="icon">+</span>
+      <span>New chat</span>
+    </button>
+
+    <div class="sidebar-section-title">Recent</div>
+    <div class="chat-list" id="chatHistoryList">
+      <!-- Chat history will be populated here -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span id="statusText">Connected</span>
+      </div>
+      <div>Powered by advanced AI models with <strong>multi-modal capabilities</strong>.</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="main-header">
+      <div class="main-header-left">
+        <div class="page-title">
+          Claude
+          <span class="subtle">AI Assistant</span>
+        </div>
+        <div class="current-model">
+          Active model:
+          <strong id="currentModelLabel">Claude Sonnet</strong>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="token-pill">
+          <span>Context:</span>
+          <strong>200k</strong>
+        </div>
+        <div class="token-pill">
+          <span>Cost:</span>
+          <strong id="costValue">$0.00</strong>
+        </div>
+        <div class="avatar">C</div>
+      </div>
+    </header>
+
+    <section class="chat-wrapper">
+      <div class="chat-messages" id="messages">
+        <div class="chat-system-banner">
+          Claude AI · Multi-modal reasoning enabled · Connected to backend API
+        </div>
+
+        <div class="welcome-section">
+          <h2 class="welcome-title">How can I help you today?</h2>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-wrapper">
+        <div class="input-row">
+          <div class="input-box">
+            <textarea
+              id="messageInput"
+              class="prompt-input"
+              rows="2"
+              placeholder="Message Claude..."
+            ></textarea>
+          </div>
+          <div class="input-actions">
+            <div class="action-row-top">
+              <button class="icon-btn" id="attachBtn" type="button" title="Attach file">
+                📎
+              </button>
+              <input type="file" id="fileInput" hidden accept=".pdf,.docx,.pptx,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.gif,.mp4,.mov">
+              <button class="icon-btn" type="button" title="Options" onclick="window.generateFile('docx')">
+                ⚙️
+              </button>
+            </div>
+            <button class="send-btn" id="sendBtn" type="button">
+              <span>Send</span>
+              <span class="send-icon">⮞</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Model selector directly under prompt window -->
+        <div class="model-selector">
+          <div class="model-pills" id="modelPills">
+            <div
+              class="model-pill active"
+              data-model="Claude Sonnet"
+              data-value=""
+              data-hint="Balanced performance and intelligence"
+            >
+              <span class="dot"></span>
+              <span>Claude Sonnet</span>
+            </div>
+            <!-- Additional models will be populated dynamically -->
+          </div>
+          <div class="model-hint">
+            <span id="modelHintLabel">Balanced performance and intelligence</span>
+          </div>
+        </div>
+
+        <div class="input-footer-text">
+          <div id="sessionInfo">
+            Session active · Ready to chat
+          </div>
+          <div>
+            <code>Enter</code> to send • <code>Shift + Enter</code> for new line
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <!-- Loading template -->
   <template id="loadingTemplate">
     <div class="message assistant loading-msg">
+      <div class="message-role">Claude</div>
       <div class="message-content">
-        <div class="avatar assistant-avatar">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <rect width="20" height="20" rx="4" fill="#CC9167"/>
-          </svg>
-        </div>
-        <div class="message-bubble">
-          <div class="typing-indicator">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
       </div>
     </div>
@@ -159,9 +181,6 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

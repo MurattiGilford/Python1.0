@@ -1,0 +1,43 @@
+# Core FastAPI and web framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# HTTP client
+httpx==0.26.0
+
+# Document processing
+python-docx==1.1.0
+PyPDF2==3.0.1
+openpyxl==3.1.2
+python-pptx==0.6.23
+pandas==2.1.4
+
+# PDF generation
+reportlab==4.0.9
+
+# Data processing
+numpy==1.26.3
+
+# Timezone support
+pytz==2023.3
+
+# Excel support (additional)
+xlsxwriter==3.1.9
+
+# Async support
+aiofiles==23.2.1
+
+# Optional: Image processing (if needed)
+Pillow==10.2.0
+
+# Optional: Advanced file type support
+# Uncomment if needed:
+# python-magic==0.4.27
+# chardet==5.2.0
+
+# Development tools (optional)
+# pytest==7.4.4
+# black==24.1.1
+# flake8==7.0.0

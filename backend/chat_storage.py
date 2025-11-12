@@ -18,27 +18,46 @@ DB_PATH = DATA / "chats" / "chats.db"
 
 
 def _init_db():
-    """Initialize the database with session support"""
+    """Initialize the database with session support and handle migrations"""
     conn = sqlite3.connect(str(DB_PATH))
     cursor = conn.cursor()
 
-    # Create table with session_id field
+    # Create table if it doesn't exist (old schema without session_id)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT NOT NULL,
             role TEXT NOT NULL,
             content TEXT NOT NULL,
             ts REAL NOT NULL
         )
     """)
 
-    # Create index for faster session queries
+    # Check if session_id column exists (migration check)
+    cursor.execute("PRAGMA table_info(messages)")
+    columns = [col[1] for col in cursor.fetchall()]
+
+    if 'session_id' not in columns:
+        logging.info("🔄 Migrating database: adding session_id column...")
+
+        # Add session_id column with a default value
+        cursor.execute("""
+            ALTER TABLE messages ADD COLUMN session_id TEXT DEFAULT 'legacy_session'
+        """)
+
+        # Update existing messages to have unique session IDs based on timestamp
+        cursor.execute("""
+            UPDATE messages
+            SET session_id = 'session_' || CAST(ts AS TEXT)
+            WHERE session_id = 'legacy_session'
+        """)
+
+        logging.info("✅ Database migration completed!")
+
+    # Now create indexes (safe because session_id column exists)
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_session_id ON messages(session_id)
     """)
 
-    # Create index for timestamp queries
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_ts ON messages(ts DESC)
     """)

@@ -9,13 +9,12 @@
   const sendBtn = document.getElementById('sendBtn');
   const attachBtn = document.getElementById('attachBtn');
   const fileInput = document.getElementById('fileInput');
-  const statusText = document.getElementById('statusText');
-  const costValue = document.getElementById('costValue');
   const modelHint = document.getElementById('modelHint');
   const providerSelect = document.getElementById('provider-select');
   const chatHistoryList = document.getElementById('chatHistoryList');
   const chatHistorySidebar = document.getElementById('chatHistorySidebar');
   const chatHistoryToggle = document.getElementById('chatHistoryToggle');
+  const currentModel = document.getElementById('currentModel');
 
   let totalCost = 0;
   let isProcessing = false;
@@ -109,7 +108,7 @@
     } else {
       avatar.innerHTML = `
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="10" r="8" fill="url(#avatarGradient)"/>
+          <rect width="20" height="20" rx="4" fill="#CC9167"/>
         </svg>
       `;
     }
@@ -364,7 +363,7 @@
     }
 
     try {
-      statusText.textContent = 'Generating file...';
+      console.log('Generating file...');
 
       const response = await fetch(`${BACKEND}/generate/file`, {
         method: 'POST',
@@ -381,7 +380,7 @@
       if (data.ok) {
         // Download the file
         window.open(`${BACKEND}${data.download_url}`, '_blank');
-        statusText.textContent = 'File generated';
+        console.log('File generated successfully');
 
         // Add success message to chat
         addMessage('assistant', `✅ Generated ${fileType.toUpperCase()} file: ${data.filename}`, {
@@ -393,12 +392,10 @@
       } else {
         const errorMsg = data.error || 'File generation failed';
         alert(`Failed to generate file: ${errorMsg}`);
-        statusText.textContent = 'Error';
       }
     } catch (error) {
       console.error('File generation error:', error);
       alert('Failed to generate file: ' + error.message);
-      statusText.textContent = 'Error';
     }
   };
 
@@ -421,35 +418,7 @@
         if (sessionId === currentSessionId) {
           messagesEl.innerHTML = `
             <div class="welcome-section">
-              <div class="welcome-icon">⚡</div>
-              <h2 class="welcome-title">Nuclear-Powered AI Laboratory</h2>
-              <p class="welcome-subtitle">Unlimited capabilities - No boundaries</p>
-              <div class="capabilities">
-                <div class="capability">
-                  <span class="capability-icon">🧠</span>
-                  <span>Manual Selection</span>
-                </div>
-                <div class="capability">
-                  <span class="capability-icon">🎨</span>
-                  <span>Image Gen</span>
-                </div>
-                <div class="capability">
-                  <span class="capability-icon">🎬</span>
-                  <span>Video Gen</span>
-                </div>
-                <div class="capability">
-                  <span class="capability-icon">📄</span>
-                  <span>All Files</span>
-                </div>
-                <div class="capability">
-                  <span class="capability-icon">💰</span>
-                  <span>Cost Tracking</span>
-                </div>
-                <div class="capability">
-                  <span class="capability-icon">🔬</span>
-                  <span>Research</span>
-                </div>
-              </div>
+              <h2 class="welcome-title">How can I help you today?</h2>
             </div>
           `;
           currentSessionId = `session_${Date.now()}`;
@@ -471,7 +440,7 @@
       availableProviders = providers;
 
       // Update provider select dropdown
-      providerSelect.innerHTML = '<option value="">Auto (Free Tier)</option>';
+      providerSelect.innerHTML = '<option value="">Claude Sonnet</option>';
 
       for (const [key, provider] of Object.entries(providers)) {
         const option = document.createElement('option');
@@ -494,9 +463,9 @@
     const selectedProvider = providerSelect.value;
     if (selectedProvider && availableProviders[selectedProvider]) {
       const provider = availableProviders[selectedProvider];
-      modelHint.textContent = `Selected: ${provider.model} (${provider.type})`;
+      if (modelHint) modelHint.textContent = `${provider.model}`;
     } else {
-      modelHint.textContent = 'Auto (Free Tier)';
+      if (modelHint) modelHint.textContent = '';
     }
   }
 
@@ -540,7 +509,6 @@
     }
 
     showLoading(loadingMsg);
-    statusText.textContent = 'Processing...';
 
     try {
       const controller = new AbortController();
@@ -586,13 +554,10 @@
       });
 
       totalCost += data.cost_cents;
-      costValue.textContent = formatCost(totalCost);
-
-      statusText.textContent = 'Online';
 
       if (data.model_used && availableProviders[data.model_used]) {
         const provider = availableProviders[data.model_used];
-        modelHint.textContent = `Used: ${provider.model} (${data.strategy})`;
+        if (modelHint) modelHint.textContent = `${provider.model}`;
       }
 
       // Reload sessions after new message
@@ -607,7 +572,6 @@
       } else {
         addMessage('assistant', `❌ Error: ${error.message}`, {});
       }
-      statusText.textContent = 'Error';
     } finally {
       isProcessing = false;
       sendBtn.disabled = false;
@@ -620,7 +584,7 @@
   async function handleFileUpload(file) {
     if (!file) return;
 
-    statusText.textContent = `Uploading ${file.name}...`;
+    console.log(`Uploading ${file.name}...`);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -642,7 +606,6 @@
         sendBtn.disabled = true;
 
         showLoading('Analyzing file...');
-        statusText.textContent = 'Processing...';
 
         const chatResponse = await fetch(`${BACKEND}/chat`, {
           method: 'POST',
@@ -679,13 +642,10 @@
         });
 
         totalCost += chatData.cost_cents;
-        costValue.textContent = formatCost(totalCost);
-
-        statusText.textContent = 'Online';
 
         if (chatData.model_used && availableProviders[chatData.model_used]) {
           const provider = availableProviders[chatData.model_used];
-          modelHint.textContent = `Used: ${provider.model} (${chatData.strategy})`;
+          if (modelHint) modelHint.textContent = `${provider.model}`;
         }
 
         // Reload chat sessions
@@ -700,7 +660,7 @@
       }
     } catch (error) {
       hideLoading();
-      statusText.textContent = 'Upload failed';
+      console.error('Upload failed:', error);
       alert(`Failed to upload file: ${error.message}`);
       isProcessing = false;
       sendBtn.disabled = false;
@@ -751,35 +711,7 @@
 
     messagesEl.innerHTML = `
       <div class="welcome-section">
-        <div class="welcome-icon">⚡</div>
-        <h2 class="welcome-title">Nuclear-Powered AI Laboratory</h2>
-        <p class="welcome-subtitle">Unlimited capabilities - No boundaries</p>
-        <div class="capabilities">
-          <div class="capability">
-            <span class="capability-icon">🧠</span>
-            <span>Manual Selection</span>
-          </div>
-          <div class="capability">
-            <span class="capability-icon">🎨</span>
-            <span>Image Gen</span>
-          </div>
-          <div class="capability">
-            <span class="capability-icon">🎬</span>
-            <span>Video Gen</span>
-          </div>
-          <div class="capability">
-            <span class="capability-icon">📄</span>
-            <span>All Files</span>
-          </div>
-          <div class="capability">
-            <span class="capability-icon">💰</span>
-            <span>Cost Tracking</span>
-          </div>
-          <div class="capability">
-            <span class="capability-icon">🔬</span>
-            <span>Research</span>
-          </div>
-        </div>
+        <h2 class="welcome-title">How can I help you today?</h2>
       </div>
     `;
 
@@ -810,7 +742,7 @@
         if (result.ok) {
           const filename = result.filename || result.path.split('/').pop();
           window.open(`${BACKEND}/files/download/${filename}`, '_blank');
-          statusText.textContent = 'DOCX exported';
+          console.log('DOCX exported successfully');
         } else {
           throw new Error('DOCX export failed');
         }
@@ -819,15 +751,11 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `quantum-ai-chat-${Date.now()}.txt`;
+        a.download = `claude-chat-${Date.now()}.txt`;
         a.click();
         URL.revokeObjectURL(url);
-        statusText.textContent = 'TXT exported';
+        console.log('TXT exported successfully');
       }
-
-      setTimeout(() => {
-        statusText.textContent = 'Online';
-      }, 2000);
     } catch (error) {
       alert('Failed to export: ' + error.message);
     }
@@ -841,15 +769,12 @@
       const data = await response.json();
 
       if (data.status === 'online') {
-        statusText.textContent = 'Online';
-        statusText.parentElement.querySelector('.status-dot').style.background = 'var(--success)';
         console.log('✅ Backend connected:', data.version);
       }
 
       const costResponse = await fetch(`${BACKEND}/cost`);
       const costData = await costResponse.json();
       totalCost = costData.total_cost_cents;
-      costValue.textContent = formatCost(totalCost);
 
       // Fetch available providers
       await fetchProviders();
@@ -858,8 +783,6 @@
       await loadChatSessions();
 
     } catch (error) {
-      statusText.textContent = 'Offline';
-      statusText.parentElement.querySelector('.status-dot').style.background = 'var(--error)';
       console.error('Failed to connect to backend:', error);
     }
 
@@ -878,6 +801,6 @@
     }
   });
 
-  console.log('🚀 Quantum AI Lab v5.1 - Nuclear Spaceship initialized!');
+  console.log('✨ Claude initialized');
   console.log('📍 Current session:', currentSessionId);
 })();

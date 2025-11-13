@@ -314,8 +314,7 @@ def calculate_cost(provider_key: str, tokens_approx: int) -> int:
 
 @lru_cache(maxsize=100)
 def cached_fact_check(text: str):
-    """Cached fact checking for better performance"""
-    text_hash = hashlib.md5(text.encode()).hexdigest()
+    """Cached fact checking for better performance - FIXED BUG #2: Removed unused hash"""
     return fact_guard.check(text)
 
 async def call_chat_model(
@@ -336,9 +335,11 @@ async def call_chat_model(
     if not api_key:
         raise RuntimeError(f"API key missing: {provider.api_key_env}")
 
-    # Build headers
+    # FIXED BUG #7: Ensure consistent Bearer token format for all providers
+    # Build headers - always use Bearer format for OpenAI-compatible APIs
     if "api.z.ai" in provider.endpoint:
-        headers = {"Authorization": api_key, "Content-Type": "application/json"}
+        # Z.AI might accept both formats, use Bearer for consistency
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     else:  # Moonshot
         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
@@ -347,7 +348,7 @@ async def call_chat_model(
         "model": provider.model,
         "messages": messages,
         "temperature": temp,
-        "max_tokens": min(max_tokens, 2048),  # Limit tokens for speed
+        "max_tokens": max_tokens,  # FIXED BUG #8: Respect user's max_tokens request
         "stream": False  # Disable streaming for faster response
     }
 
@@ -392,7 +393,8 @@ async def generate_image(prompt: str) -> Tuple[str, str]:
     if not api_key:
         raise RuntimeError(f"API key missing: {provider.api_key_env}")
 
-    headers = {"Authorization": api_key, "Content-Type": "application/json"}
+    # FIXED BUG #7: Use Bearer token format
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     body = {
         "model": provider.model,
         "prompt": prompt,
@@ -435,12 +437,15 @@ async def generate_video(prompt: str) -> Tuple[str, str]:
     if not api_key:
         raise RuntimeError(f"API key missing: {provider.api_key_env}")
 
-    headers = {"Authorization": api_key, "Content-Type": "application/json"}
+    # FIXED BUG #7: Use Bearer token format
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
-    # FIXED: Removed image_url from request body
+    # FIXED BUG #3: Added proper duration and resolution fields
     body = {
         "model": provider.model,
-        "prompt": prompt
+        "prompt": prompt,
+        "duration": 5,  # Default 5 seconds
+        "resolution": "720p"  # Default resolution
     }
 
     logging.info(f"Video generation request: {body}")
@@ -486,7 +491,8 @@ async def orchestrate_request(
     temp: float,
     max_tokens: int,
     provider_key: Optional[str] = None,
-    uploaded_file: Optional[str] = None
+    uploaded_file: Optional[str] = None,
+    context_messages: Optional[List[Dict]] = None
 ) -> Tuple[str, str, int, str, Optional[str]]:
     """
     Manual provider selection orchestration with improved media handling
@@ -513,22 +519,27 @@ async def orchestrate_request(
     # Handle media generation with improved prompt extraction
     if is_image_request:
         try:
-            # Extract the actual prompt after the trigger
+            # FIXED BUG #5: Better prompt extraction that handles edge cases
             prompt = task
+            found_trigger = False
             for trigger in ["create image of", "generate image of", "draw", "make image of", "image of", "visualize", "generate picture of"]:
                 if trigger in task_lower:
                     try:
                         start_index = task_lower.index(trigger) + len(trigger)
-                        prompt = task[start_index:].strip()
+                        extracted_prompt = task[start_index:].strip()
                         # Remove any leading punctuation or connectors
-                        prompt = re.sub(r'^[:\-\—]\s*', '', prompt)
-                        break
+                        extracted_prompt = re.sub(r'^[:\-\—]\s*', '', extracted_prompt)
+                        # Only use extracted prompt if it's meaningful
+                        if extracted_prompt and len(extracted_prompt.strip()) >= 3:
+                            prompt = extracted_prompt
+                            found_trigger = True
+                            break
                     except (ValueError, IndexError):
-                        pass
+                        continue
 
-            # If no trigger found or extraction failed, use full task
-            if not prompt or len(prompt.strip()) < 3:
-                prompt = task
+            # If no trigger found or extraction failed, use full task (already set above)
+            if not found_trigger:
+                logging.info(f"No trigger found, using full prompt: {prompt[:50]}...")
 
             logging.info(f"Generating image with prompt: '{prompt}'")
             image_url, saved_path = await generate_image(prompt)
@@ -540,22 +551,27 @@ async def orchestrate_request(
 
     if is_video_request:
         try:
-            # Extract the actual prompt after the trigger
+            # FIXED BUG #5: Better prompt extraction that handles edge cases
             prompt = task
+            found_trigger = False
             for trigger in ["create video of", "generate video of", "animate", "make video of", "video of", "film"]:
                 if trigger in task_lower:
                     try:
                         start_index = task_lower.index(trigger) + len(trigger)
-                        prompt = task[start_index:].strip()
+                        extracted_prompt = task[start_index:].strip()
                         # Remove any leading punctuation or connectors
-                        prompt = re.sub(r'^[:\-\—]\s*', '', prompt)
-                        break
+                        extracted_prompt = re.sub(r'^[:\-\—]\s*', '', extracted_prompt)
+                        # Only use extracted prompt if it's meaningful
+                        if extracted_prompt and len(extracted_prompt.strip()) >= 3:
+                            prompt = extracted_prompt
+                            found_trigger = True
+                            break
                     except (ValueError, IndexError):
-                        pass
+                        continue
 
-            # If no trigger found or extraction failed, use full task
-            if not prompt or len(prompt.strip()) < 3:
-                prompt = task
+            # If no trigger found or extraction failed, use full task (already set above)
+            if not found_trigger:
+                logging.info(f"No trigger found, using full prompt: {prompt[:50]}...")
 
             logging.info(f"Generating video with prompt: '{prompt}'")
             video_url, saved_path = await generate_video(prompt)
@@ -569,7 +585,8 @@ async def orchestrate_request(
     if not provider_key or provider_key not in PROVIDERS:
         provider_key = "zai-glm-4.5-flash"  # Default to free tier
 
-    messages = [{"role": "user", "content": task}]
+    # FIXED BUG #1: Use context_messages with chat history instead of throwing it away
+    messages = context_messages if context_messages else [{"role": "user", "content": task}]
 
     try:
         result, cost = await call_chat_model(
@@ -577,17 +594,26 @@ async def orchestrate_request(
         )
         return result, provider_key, cost, "manual_selection", None
     except Exception as e:
+        # FIXED BUG #4: Proper error handling instead of bare except
+        primary_error = str(e)
         # If selected provider fails, try fallback to GLM-4.5-Flash
         if provider_key != "zai-glm-4.5-flash":
             try:
+                logging.warning(f"Primary provider {provider_key} failed: {primary_error}. Trying fallback...")
                 result, cost = await call_chat_model(
                     "zai-glm-4.5-flash", messages, temp, max_tokens
                 )
                 return result, "zai-glm-4.5-flash", cost, "fallback_to_free", None
-            except:
-                pass
+            except Exception as fallback_error:
+                # FIXED BUG #9: Return meaningful error when both fail
+                logging.error(f"Fallback also failed: {fallback_error}")
+                raise RuntimeError(
+                    f"Both {provider_key} and fallback failed.\n"
+                    f"Primary error: {primary_error}\n"
+                    f"Fallback error: {str(fallback_error)}"
+                )
 
-        raise RuntimeError(f"Provider {provider_key} failed. Last error: {str(e)}")
+        raise RuntimeError(f"Provider {provider_key} failed: {primary_error}")
 
 # ==============================================================================
 # CORE ENDPOINTS
@@ -719,8 +745,14 @@ async def generate_file_endpoint(req: dict):
             path.write_bytes(buffer.getvalue())
 
         elif file_type == "pdf":
-            # Use document_handler for PDF generation
-            path = export_pdf(content, filename)
+            # FIXED BUG #10: Add proper error handling for PDF export
+            try:
+                path = export_pdf(content, filename)
+            except Exception as pdf_error:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"PDF generation failed: {str(pdf_error)}. ReportLab might not be installed."
+                )
 
         elif file_type in ["txt", "md"]:
             path = DATA / "outputs" / filename
@@ -769,7 +801,7 @@ async def chat(req: ChatReq):
         context_messages.append({"role": "user", "content": req.task})
 
         result, model_used, cost_cents, strategy, media_url = await orchestrate_request(
-            req.task, req.temperature, req.max_tokens, req.provider
+            req.task, req.temperature, req.max_tokens, req.provider, context_messages=context_messages
         )
 
         # Save messages with session ID
@@ -821,10 +853,17 @@ async def files_upload(file: UploadFile = File(...)):
 
 @app.post("/files/export/pdf")
 async def export_pdf_endpoint(req: ExportDocReq):
-    """Export text as PDF"""
-    filename = f"conversation_{int(time.time())}.pdf"
-    path = export_pdf(req.text, filename)
-    return {"ok": True, "path": str(path), "filename": filename}
+    """Export text as PDF - FIXED BUG #10: Added error handling"""
+    try:
+        filename = f"conversation_{int(time.time())}.pdf"
+        path = export_pdf(req.text, filename)
+        return {"ok": True, "path": str(path), "filename": filename}
+    except Exception as e:
+        logging.error(f"PDF export failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"PDF export failed: {str(e)}. ReportLab might not be installed."
+        )
 
 @app.post("/files/export/docx")
 async def export_docx_endpoint(req: ExportDocReq):

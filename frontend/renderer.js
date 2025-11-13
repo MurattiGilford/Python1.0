@@ -99,7 +99,7 @@
     // Role label
     const roleDiv = document.createElement('div');
     roleDiv.className = 'message-role';
-    roleDiv.textContent = messageObj.role === 'user' ? 'You' : 'Claude';
+    roleDiv.textContent = messageObj.role === 'user' ? 'You' : 'QAI';
 
     // Content
     const contentDiv = document.createElement('div');
@@ -674,7 +674,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `claude-chat-${Date.now()}.txt`;
+        a.download = `qai-chat-${Date.now()}.txt`;
         a.click();
         URL.revokeObjectURL(url);
         console.log('TXT exported successfully');
@@ -721,7 +721,7 @@
   init();
   autoResize();
 
-  console.log('✨ Claude initialized');
+  console.log('✨ QAI initialized');
   console.log('📍 Current session:', currentSessionId);
 
   // ===== MODEL PILL SELECTOR =====
@@ -731,11 +731,11 @@
     const modelPills = document.getElementById('modelPills');
     if (!modelPills) return;
 
-    // Start with default Claude Sonnet
+    // Start with default QAI Sonnet
     let pillsHTML = `
-      <div class="model-pill ${selectedProvider === '' ? 'active' : ''}" data-model="Claude Sonnet" data-value="" data-hint="Balanced performance and intelligence">
+      <div class="model-pill ${selectedProvider === '' ? 'active' : ''}" data-model="QAI Sonnet" data-value="" data-hint="Balanced performance and intelligence">
         <span class="dot"></span>
-        <span>Claude Sonnet</span>
+        <span>QAI Sonnet</span>
       </div>
     `;
 

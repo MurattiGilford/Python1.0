@@ -354,7 +354,7 @@ async def call_chat_model(
 
     # Use asyncio for better performance
     try:
-        async with httpx.AsyncClient(timeout=30.0) as client:  # Reduced timeout
+        async with httpx.AsyncClient(timeout=90.0) as client:  # Increased timeout for slower APIs
             r = await client.post(provider.endpoint, headers=headers, json=body)
 
             if r.status_code == 401:

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <div class="sidebar-title-pill"></div>
+        <span>QAI</span>
+      </div>
+      <span class="badge-version">AI</span>
+    </div>
+
+    <button class="new-chat-btn" type="button" onclick="window.clearChat()">
+      <span class="icon">+</span>
+      <span>New chat</span>
+    </button>
+
+    <div class="sidebar-section-title">Recent</div>
+    <div class="chat-list" id="chatHistoryList">
+      <!-- Chat history will be populated here -->
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span id="statusText">Connected</span>
+      </div>
+      <div>Powered by advanced AI models with <strong>multi-modal capabilities</strong>.</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="main-header">
+      <div class="main-header-left">
+        <div class="page-title">
+          QAI
+          <span class="subtle">AI Assistant</span>
+        </div>
+        <div class="current-model">
+          Active model:
+          <strong id="currentModelLabel">QAI Sonnet</strong>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="token-pill">
+          <span>Context:</span>
+          <strong>200k</strong>
+        </div>
+        <div class="token-pill">
+          <span>Cost:</span>
+          <strong id="costValue">$0.00</strong>
+        </div>
+        <div class="avatar">Q</div>
+      </div>
+    </header>
+
+    <section class="chat-wrapper">
+      <div class="chat-messages" id="messages">
+        <div class="chat-system-banner">
+          QAI · Multi-modal reasoning enabled · Connected to backend API
+        </div>
+
+        <div class="welcome-section">
+          <h2 class="welcome-title">How can I help you today?</h2>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-wrapper">
+        <div class="input-row">
+          <div class="input-box">
+            <textarea
+              id="messageInput"
+              class="prompt-input"
+              rows="2"
+              placeholder="Message QAI..."
+            ></textarea>
+          </div>
+          <div class="input-actions">
+            <div class="action-row-top">
+              <button class="icon-btn" id="attachBtn" type="button" title="Attach file">
+                📎
+              </button>
+              <input type="file" id="fileInput" hidden accept=".pdf,.docx,.pptx,.xlsx,.txt,.csv,.png,.jpg,.jpeg,.gif,.mp4,.mov">
+              <button class="icon-btn" type="button" title="Options" onclick="window.generateFile('docx')">
+                ⚙️
+              </button>
+            </div>
+            <button class="send-btn" id="sendBtn" type="button">
+              <span>Send</span>
+              <span class="send-icon">⮞</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Model selector directly under prompt window -->
+        <div class="model-selector">
+          <div class="model-pills" id="modelPills">
+            <div
+              class="model-pill active"
+              data-model="QAI Sonnet"
+              data-value=""
+              data-hint="Balanced performance and intelligence"
+            >
+              <span class="dot"></span>
+              <span>QAI Sonnet</span>
+            </div>
+            <!-- Additional models will be populated dynamically -->
+          </div>
+          <div class="model-hint">
+            <span id="modelHintLabel">Balanced performance and intelligence</span>
+          </div>
+        </div>
+
+        <div class="input-footer-text">
+          <div id="sessionInfo">
+            Session active · Ready to chat
+          </div>
+          <div>
+            <code>Enter</code> to send • <code>Shift + Enter</code> for new line
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Loading template -->
+  <template id="loadingTemplate">
+    <div class="message assistant loading-msg">
+      <div class="message-role">QAI</div>
+      <div class="message-content">
+        <div class="typing-indicator">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- File Generation Modal -->
+  <div id="fileGenModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Generate File</h3>
+        <button class="modal-close" onclick="window.closeFileGenModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="fileGenContent">Content:</label>
+          <textarea id="fileGenContent" placeholder="Enter the content you want in the generated file..." rows="10"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="fileGenType">File Type:</label>
+          <select id="fileGenType">
+            <option value="docx">Word Document (.docx)</option>
+            <option value="xlsx">Excel Spreadsheet (.xlsx)</option>
+            <option value="pptx">PowerPoint Presentation (.pptx)</option>
+            <option value="pdf">PDF Document (.pdf)</option>
+            <option value="txt">Text File (.txt)</option>
+            <option value="csv">CSV File (.csv)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fileGenName">Filename (optional):</label>
+          <input type="text" id="fileGenName" placeholder="Leave blank for auto-generated name">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="window.confirmFileGeneration()">Generate & Download</button>
+        <button class="btn btn-secondary" onclick="window.closeFileGenModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

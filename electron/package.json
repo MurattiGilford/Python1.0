@@ -1,0 +1,13 @@
+{
+  "name": "routemind-desktop",
+  "version": "1.0.0",
+  "description": "Electron shell for the RouteMind Flask application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "lint": "echo 'No lint step configured'"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3"
+  }
+}

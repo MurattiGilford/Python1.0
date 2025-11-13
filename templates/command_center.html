@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RouteMind Dispatcher Command Centre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  </head>
+  <body class="page page--dashboard">
+    <header class="dashboard__header">
+      <a class="logo" href="/">RouteMind Pro</a>
+      <div class="metrics">
+        <span class="metric"><strong>15</strong> Active Drivers</span>
+        <span class="metric"><strong>94%</strong> Efficiency Rate</span>
+        <span class="metric"><strong>342</strong> Completed Today</span>
+        <span class="metric"><strong>12</strong> Active Alerts</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn--ghost" onclick="window.history.back()">Back to App</button>
+        <button class="btn btn--primary">Download Report</button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="dashboard__lane">
+        <h2>Live Fleet Map</h2>
+        <div class="fleet-board">
+          <article class="driver-card" style="--pos-x: 12%; --pos-y: 35%">
+            <h3>Driver 7 &ndash; Mia</h3>
+            <p>Block: Downtown | 128 stops</p>
+            <span class="badge badge--accent">Access blocked</span>
+            <small>ETA delayed by 7m</small>
+          </article>
+          <article class="driver-card" style="--pos-x: 44%; --pos-y: 22%">
+            <h3>Driver 11 &ndash; Sam</h3>
+            <p>Route: Industrial</p>
+            <small>3 drop-offs remaining</small>
+          </article>
+          <article class="driver-card" style="--pos-x: 68%; --pos-y: 50%">
+            <h3>Driver 3 &ndash; Noah</h3>
+            <p>Cluster detected: 5 stops</p>
+            <span class="badge badge--warning">Reroute suggested</span>
+          </article>
+        </div>
+      </section>
+
+      <aside class="dashboard__sidebar">
+        <section class="panel">
+          <h2>Priority Alerts</h2>
+          <article class="alert alert--critical">
+            <h3>High Priority &ndash; Route Blocked</h3>
+            <p>Driver 7 reports access closed due to construction.</p>
+            <button class="btn btn--small btn--primary">Dispatch Support</button>
+          </article>
+          <article class="alert">
+            <h3>Weather Update</h3>
+            <p>Severe storm incoming within 25 minutes. Auto-notifying drivers.</p>
+          </article>
+          <article class="alert">
+            <h3>Efficiency Alert</h3>
+            <p>North loop operating at 112% efficiency. Capture best-practice route.</p>
+          </article>
+        </section>
+
+        <section class="panel">
+          <h2>Live Analytics</h2>
+          <ul class="analytics-list">
+            <li><strong>Delivery Pace:</strong> 1.27x daily target</li>
+            <li><strong>On-Time Rate:</strong> 97.2%</li>
+            <li><strong>Voice Commands:</strong> 162 processed today</li>
+            <li><strong>Exceptions Resolved:</strong> 24</li>
+          </ul>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="footer footer--compact">
+      <p>Need mobile view? <a href="/">Switch to Driver Companion</a>.</p>
+    </footer>
+  </body>
+</html>

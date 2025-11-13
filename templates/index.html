@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RouteMind Pro - Field App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  </head>
+  <body class="page page--gradient">
+    <header class="hero">
+      <div class="hero__content">
+        <h1>RouteMind Pro</h1>
+        <p class="hero__tagline">
+          AI assistants that keep drivers fast, safe and connected.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="/command-center">Open Command Centre</a>
+          <a class="btn btn--ghost" href="#mobile-suite">Explore Mobile Suite</a>
+        </div>
+      </div>
+      <div class="hero__badge">Live</div>
+    </header>
+
+    <main>
+      <section id="mobile-suite" class="section">
+        <h2 class="section__heading">Smart Driver Companion</h2>
+        <p class="section__intro">
+          Three specialised copilots deliver real-time guidance across every stop of the
+          day—loading, on-route, and exception handling.
+        </p>
+        <div class="cards-grid">
+          <article class="device-card">
+            <header class="device-card__header">
+              <div>
+                <h3>AI Loading Optimizer Pro</h3>
+                <p>Smart Loading Sequence</p>
+              </div>
+              <div class="pill pill--purple">92%</div>
+            </header>
+            <div class="device-card__screen">
+              <div class="screen__timeline">
+                <span class="timeline-step">Stop 12 &ndash; Downtown Express</span>
+                <span class="timeline-step">Stop 13 &ndash; Dental Supply</span>
+                <span class="timeline-step">Stop 14 &ndash; CoWorking Hub</span>
+              </div>
+              <div class="screen__insights">
+                <div class="insight-chip insight-chip--priority">
+                  <strong>#DL-4127</strong>
+                  <span>Priority Express</span>
+                  <span class="insight-chip__badge">Save 12m</span>
+                </div>
+                <div class="insight-chip">
+                  <strong>#DL-8201</strong>
+                  <span>Standard</span>
+                </div>
+                <p class="insight-note">
+                  AI Insight: Loading sequence reduces sorting time by 23%.
+                </p>
+              </div>
+            </div>
+            <footer class="device-card__footer">
+              <button class="btn btn--ghost">Auto Arrange</button>
+              <button class="btn btn--primary">Start Smart Load</button>
+            </footer>
+          </article>
+
+          <article class="device-card">
+            <header class="device-card__header">
+              <div>
+                <h3>Multilingual Voice Co-Pilot</h3>
+                <p>Voice Command Active</p>
+              </div>
+              <div class="pill pill--blue">Active</div>
+            </header>
+            <div class="device-card__screen">
+              <div class="voice-bubble">
+                <p class="voice-bubble__prompt">Listening... <span>(Español)</span></p>
+                <p class="voice-bubble__reply">
+                  <span class="badge badge--accent">RouteMind:</span>
+                  Verifica que el paquete 8129 está confirmado.
+                </p>
+              </div>
+              <ul class="screen__insights screen__insights--stacked">
+                <li>
+                  <strong>#DL-8023</strong>
+                  <span>Firma requerida</span>
+                </li>
+                <li>
+                  <strong>#DL-7510</strong>
+                  <span>Notas de entrega</span>
+                </li>
+              </ul>
+            </div>
+            <footer class="device-card__footer">
+              <div class="locale-toggle">
+                <button class="btn btn--chip btn--chip-active">ES</button>
+                <button class="btn btn--chip">EN</button>
+                <button class="btn btn--chip">FR</button>
+              </div>
+              <button class="btn btn--primary">Send Reply</button>
+            </footer>
+          </article>
+
+          <article class="device-card">
+            <header class="device-card__header">
+              <div>
+                <h3>Predictive Route Optimization</h3>
+                <p>Smart Cluster Detection</p>
+              </div>
+              <div class="pill pill--green">GPS+AI</div>
+            </header>
+            <div class="device-card__screen">
+              <div class="map-preview">
+                <div class="map-cluster map-cluster--primary">Mega Cluster</div>
+                <div class="map-cluster map-cluster--secondary">8 drop-offs</div>
+              </div>
+              <div class="screen__insights">
+                <p class="insight-note">
+                  Detected: Deliver 5 stops in 12 minutes via dynamic reroute.
+                </p>
+                <div class="insight-chip insight-chip--priority">
+                  <strong>Start Smart Route</strong>
+                  <span>ETA: 14:27</span>
+                </div>
+              </div>
+            </div>
+            <footer class="device-card__footer">
+              <button class="btn btn--ghost">Customize</button>
+              <button class="btn btn--primary">Execute</button>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--alt">
+        <h2 class="section__heading">Field Intelligence Toolkit</h2>
+        <p class="section__intro">
+          Rapid triage, instant language support, and smarter bulk deliveries keep
+          drivers confident when the plan changes mid-route.
+        </p>
+        <div class="cards-grid">
+          <article class="device-card device-card--wide">
+            <header class="device-card__header">
+              <div>
+                <h3>Intelligent Hazard Management</h3>
+                <p>Stop 15 – 24 Oak Lane</p>
+              </div>
+              <div class="pill pill--red">Alert</div>
+            </header>
+            <div class="device-card__screen device-card__screen--split">
+              <div class="alert-card">
+                <h4>Hazard Alert - Level 1</h4>
+                <p>
+                  High winds detected. Delivery success rate improves 30% if handled with this
+                  method.
+                </p>
+                <ul class="alert-actions">
+                  <li>Use Drop Box</li>
+                  <li>Call Customer</li>
+                  <li>Reschedule</li>
+                </ul>
+              </div>
+              <div class="alert-card alert-card--secondary">
+                <h4>Safety Recommendation</h4>
+                <p>Switch to side entrance. Time saved: 6 minutes.</p>
+                <p class="insight-note">#CL-0445 &ndash; Electronics &ndash; Fragile</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="device-card device-card--wide">
+            <header class="device-card__header">
+              <div>
+                <h3>Smart Issue Reporting System</h3>
+                <p>Issue Detection Active</p>
+              </div>
+              <div class="pill pill--blue">Camera</div>
+            </header>
+            <div class="device-card__screen device-card__screen--split">
+              <div class="alert-card alert-card--secondary">
+                <h4>Voice Input Received</h4>
+                <p>"Package damaged during unload."</p>
+                <p class="insight-note">AI Response: Damage detected. Uploading evidence to claim.</p>
+              </div>
+              <div class="alert-card">
+                <h4>Next Step</h4>
+                <ul class="alert-actions">
+                  <li>Tag issue: <strong>Missing Package</strong></li>
+                  <li>Auto-convert to AI Analysis</li>
+                  <li>Add voice notes</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="device-card device-card--wide">
+            <header class="device-card__header">
+              <div>
+                <h3>Analytics-Driven Bulk Delivery</h3>
+                <p>Riverside Business Complex</p>
+              </div>
+              <div class="pill pill--purple">Insights</div>
+            </header>
+            <div class="device-card__screen device-card__screen--split">
+              <div class="alert-card alert-card--secondary">
+                <h4>Mega-Cluster Optimization</h4>
+                <p>
+                  Performance Data: 25% completion time, 90% customer satisfaction, 12% fuel
+                  savings.
+                </p>
+              </div>
+              <div class="alert-card">
+                <h4>Actions</h4>
+                <ul class="alert-actions">
+                  <li>Execute Mega Route</li>
+                  <li>Share Analytics</li>
+                  <li>Export KPIs</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        Ready to orchestrate the full RouteMind suite? Launch the
+        <a href="/command-center">Advanced Dispatcher Command Centre</a>.
+      </p>
+    </footer>
+  </body>
+</html>
